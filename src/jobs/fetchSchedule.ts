@@ -3,7 +3,7 @@ import Puppeteer from 'puppeteer';
 
 import totp from 'totp-generator';
 import CalendarEvent from '../classes/CalendarEvent';
-import { convertTime12to24, dateWithTimeZone } from '../utils/dateUtils';
+import { convertTime12to24 } from '../utils/dateUtils';
 import { delay } from '../utils/miscUtils';
 import { findAndClickSpan } from '../utils/pupUtils';
 
@@ -153,11 +153,14 @@ export default async function job() {
 
             // Get last date if schedule is double/triple
             if (strDate.length === 1) strDate = lastDate;
-            else lastDate = strDate;
+            else {
+                strDate = strDate.map(n => parseInt(n));
+                lastDate = strDate;
+            }
 
             finalDates.push(CalendarEvent.fromDates(
-                dateWithTimeZone(process.env.TIMEZONE, strDate[2], strDate[1], strDate[0], intTime1[0], intTime1[1], 0),
-                dateWithTimeZone(process.env.TIMEZONE, strDate[2], strDate[1], strDate[0], intTime2[0], intTime2[1], 0)
+                new Date(strDate[2], strDate[0] - 1, strDate[1], intTime1[0] - 1, intTime1[1] - 1),
+                new Date(strDate[2], strDate[0] - 1, strDate[1], intTime2[0] - 1, intTime2[1] - 1),
             ));
         }
     }
