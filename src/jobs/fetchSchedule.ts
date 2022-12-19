@@ -7,6 +7,10 @@ import { convertTime12to24 } from '../utils/dateUtils';
 import { delay } from '../utils/miscUtils';
 import { findAndClickSpan } from '../utils/pupUtils';
 
+/**
+ * Fetches the schedule from the Costco ESS website
+ * @returns An array of CalendarEvents
+ */
 export default async function job() {
     const finalDates: CalendarEvent[] = [];
 
