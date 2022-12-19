@@ -41,7 +41,7 @@ export default class CalendarEvent {
         if (res === null) return null;
         let cEvent = new CalendarEvent(res.startTime, res.endTime, res.canceled, res.lastUpdated);;
         cEvent.uid = res.uid; // for the UID in there
-        return;
+        return cEvent;
     }
 
     public turnIntoICSEvent(): ICSEvent {
@@ -98,8 +98,8 @@ export default class CalendarEvent {
     private static findOneByObject(obj: Object) : Promise<any> {
         return new Promise((resolve) => {
             scheduledDate.findOne(obj, (err: any, calendarDate: any) => {
-                if (err) resolve(null);
-                return resolve(calendarDate);
+                if (err) return resolve(null);
+                resolve(calendarDate);
             });
         });
     }
