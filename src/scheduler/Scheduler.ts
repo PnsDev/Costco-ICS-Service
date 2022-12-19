@@ -41,10 +41,10 @@ export default class Scheduler {
 
         try {
             let res = await jobFile(job.jobVariable);
-            await job.endBehavior(job, res);
+            await job.endBehavior({...job}, res);
         } catch(err: any) {
             console.log(`Job ${job.name} encountered the following error:\n${err}`);
-            try { await job.errorBehavior(job, err); }
+            try { await job.errorBehavior({...job}, err); }
             catch (errErr: any) {} // Lol
         }
     }
