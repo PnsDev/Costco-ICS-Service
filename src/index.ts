@@ -13,26 +13,22 @@ let scheduler: Scheduler;
 
 
 async function startServer() {
-	mongooseDb = await mongoose.connect(`${process.env.MONGODB_URI}`);
-	console.log(`Connected to database!`);
+    mongooseDb = await mongoose.connect(`${process.env.MONGODB_URI}`);
+    console.log(`Connected to database!`);
 
 
     icsServer = new ICSServer(eventHolder);
-	
+    
 
-	scheduler = new Scheduler([
-		{
-			name: "test",
-			path: path.join(__dirname, "jobs", "test.ts"),
-		},
-		{
-			name: "test2",
-			path: path.join(__dirname, "jobs", "test.ts"),
-			jobVariable: "test2",
-			initialDelay: 1000,
-			repeatEvery: 60000,
-		}
-	]);
+    scheduler = new Scheduler([
+        {
+            name: "fetchSchedule",
+            path: path.join(__dirname, "jobs", "fetchSchedule.ts"),
+			endBehavior: (job, res) => {
+				console.log(res);
+			}
+        },
+    ]);
 }
 
 startServer();
