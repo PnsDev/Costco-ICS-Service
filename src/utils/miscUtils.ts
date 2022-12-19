@@ -12,9 +12,9 @@ export function removeItem<T>(arr: Array<T>, value: T): T {
 
 /**
  * Delays the execution of the next line of code by the specified number of milliseconds
- * @param mili The number of milliseconds to delay
+ * @param ms The number of milliseconds to delay
  * @returns A promise that is resolved after the specified number of milliseconds
  */
-export function delay(mili: number) : Promise<any> {
-  return new Promise(r => setTimeout(r, mili))
+export function delay(ms: number) : Promise<any> {
+  return new Promise(r => setTimeout(r, ms))
 }
