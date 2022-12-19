@@ -33,6 +33,17 @@ export default class Scheduler {
     }
 
     /**
+     * Runs a job immediately (does not affect the schedule)
+     * @param jobName The name of the job to run
+     * @returns A promise that is resolved when the job has been completed
+     */
+    public runJobNow(jobName: string): Promise<void> {
+        const job = this.jobs.find(job => job.name === jobName);
+        if (!job) throw new Error(`Job ${jobName} not found`);
+        return Scheduler.runJob(job);
+    }
+
+    /**
      * Inner logic for running a job
      * @param job The job to run
      */
