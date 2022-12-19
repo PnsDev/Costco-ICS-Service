@@ -9,6 +9,7 @@ const { createFeedRoute, generateIcs } = require('ics-service'); // no types for
 export default class ICSServer {
     expressApp: express.Application = express();
     eventHolder: EventHolder;
+    started: boolean = false;
 
     /**
      * An ICS server that will serve the events in the eventHolder
@@ -16,13 +17,13 @@ export default class ICSServer {
      */
     constructor(eventHolder: EventHolder) {
         this.eventHolder = eventHolder;
-        this.startServer();
     }
 
     /**
      * Starts the express server
      */
-    private startServer() {
+    public startServer() {
+        if (this.started) return;
         this.expressApp.use(`/${process.env.SECRET}`, createFeedRoute(this.getIcs))
 	    this.expressApp.listen(80, () => {
 		    console.log('Calendar running on secret env variable');
