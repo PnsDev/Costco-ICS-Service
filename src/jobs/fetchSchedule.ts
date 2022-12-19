@@ -1,7 +1,6 @@
 import process from 'node:process';
 import Puppeteer from 'puppeteer';
 
-import mongoose from 'mongoose';
 import totp from 'totp-generator';
 import CalendarEvent from '../classes/CalendarEvent';
 import { convertTime12to24, dateWithTimeZone } from '../utils/dateUtils';
@@ -10,7 +9,6 @@ import { findAndClickSpan } from '../utils/pupUtils';
 
 export default async function job() {
     const finalDates: CalendarEvent[] = [];
-    const mongoDB: mongoose.Mongoose = await mongoose.connect(`${process.env.MONGODB_URI}`);
 
     const browser: Puppeteer.Browser = await Puppeteer.launch({
         headless: true
