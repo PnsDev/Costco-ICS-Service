@@ -1,7 +1,10 @@
 {
     "compilerOptions": {
+        "outDir": "dist",
+        "removeComments": true,
+        "moduleResolution": "node",
+        "esModuleInterop": true,
         "target": "es6",
         "module": "commonjs",
-        "esModuleInterop": true,
     }
 }

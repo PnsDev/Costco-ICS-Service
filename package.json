@@ -4,7 +4,7 @@
   "description": " A costco employee portal scraper to get the days you work",
   "main": "src/index.ts",
   "scripts": {
-    "testpup": "cross-env TS_NODE=true NODE_OPTIONS=\"--loader ts-node/esm\" node src/jobs/dbUpdate.ts",
+    "build": "tsc",
     "dev": "cross-env TS_NODE=true NODE_OPTIONS=\"--loader ts-node/esm\" node ."
   },
   "repository": {
