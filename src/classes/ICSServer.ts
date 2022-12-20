@@ -24,7 +24,6 @@ export default class ICSServer {
      */
     public startServer() {
         if (this.started) return;
-        console.log('Starting ICS Server');
         this.started = true;
         this.expressApp.use(`/${process.env.SECRET}`, (req) => createFeedRoute(generateIcs("Costco Shift Scheduler", this.eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host))))
 	    this.expressApp.listen(80, () => {

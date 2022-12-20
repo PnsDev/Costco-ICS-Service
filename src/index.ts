@@ -19,11 +19,7 @@ async function startServer() {
     mongoose.set('strictQuery', true);
     mongooseDb = await mongoose.connect(`${process.env.MONGO_URL}/costco?authSource=admin`);
 
-    console.log(`Connected to database!`);
-
-
     icsServer = new ICSServer(eventHolder);
-    
 
     scheduler = new Scheduler([
         {
@@ -61,7 +57,6 @@ async function startServer() {
             },
             endBehavior: () => {icsServer.startServer()} // Start the server in case it hasn't been started yet (since we don't want to return empty calendars)
         }
-        // TODO: Maybe it would make more sense to just pull data when requested???
     ]);
 }
 
