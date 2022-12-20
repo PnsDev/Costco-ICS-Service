@@ -24,13 +24,11 @@ export default class ICSServer {
      */
     public startServer() {
         if (this.started) return;
-        this.expressApp.use(`/${process.env.SECRET}`, createFeedRoute(this.getIcs))
+        console.log('Starting ICS Server');
+        this.started = true;
+        this.expressApp.use(`/${process.env.SECRET}`, (req) => createFeedRoute(generateIcs("Costco Shift Scheduler", this.eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host))))
 	    this.expressApp.listen(80, () => {
-		    console.log('Calendar running on secret env variable');
+		    console.log('ICS Server is running on secret env variable');
 	    });
     }
-
-    private getIcs(feedUrl: any) {
-		return generateIcs("Costco Shift Scheduler", this.eventHolder.turnIntoICSEvents(), feedUrl);
-	}
 }
