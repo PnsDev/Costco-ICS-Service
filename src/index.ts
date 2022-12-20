@@ -17,7 +17,7 @@ let failedAttempts = 0;
 
 async function startServer() {
     mongoose.set('strictQuery', true);
-    mongooseDb = await mongoose.connect(`${process.env.MONGODB_URI}`);
+    mongooseDb = await mongoose.connect(`${process.env.MONGO_URL}/costco?authSource=admin`);
 
     console.log(`Connected to database!`);
 
