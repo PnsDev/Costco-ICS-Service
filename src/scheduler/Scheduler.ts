@@ -1,5 +1,5 @@
 import { delay } from "../utils/miscUtils";
-import { msToCron, validateJobPath } from "./utils";
+import { msToCron } from "./utils";
 
 const cron = require('node-cron');
 
@@ -17,7 +17,6 @@ export default class Scheduler {
      */
     public async scheduleJob(job: job): Promise<void> {
         job = { ...defaultValues, ...job };
-        validateJobPath(job.path); // Validates the job file (we need something to run)
 
         // If the job is repeating, we need to run it without waiting for it to finish
         if (job.repeatEvery === null || job.initialDelay !== 0) {
@@ -48,10 +47,9 @@ export default class Scheduler {
      * @param job The job to run
      */
     private static async runJob(job: job): Promise<void> {
-        const jobFile: Function = require(job.path).default;
 
         try {
-            let res = await jobFile(job.jobVariable);
+            let res = await job.func(job.jobVariable);
             await job.endBehavior({...job}, res);
         } catch(err: any) {
             console.log(`Job ${job.name} encountered the following error:\n${err}`);
@@ -63,7 +61,7 @@ export default class Scheduler {
 
 type job = {
     name: string, // The name of the job
-    path: string, // The path to the file containing the job
+    func: Function, // The path to the file containing the job
     jobVariable?: any, // The variables to pass to the job
     repeatEvery?: number, // In milliseconds
     initialDelay?: number, // In milliseconds

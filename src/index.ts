@@ -5,7 +5,6 @@ import EventHolder from "./classes/EventHolder";
 import ICSServer from "./classes/ICSServer";
 import Scheduler from "./scheduler/Scheduler";
 import path from "path";
-import CalendarEvent from './classes/CalendarEvent';
 
 const eventHolder: EventHolder = new EventHolder();
 let icsServer: ICSServer;
@@ -24,7 +23,8 @@ async function startServer() {
     scheduler = new Scheduler([
         {
             name: "fetchSchedule",
-            path: path.join(__dirname, "jobs", "fetchSchedule.ts"),
+            func: require("./jobs/fetchSchedule").default,
+            initialDelay: 1,
             repeatEvery: 21600000,
             errorBehavior: (job) => {
                 if (++failedAttempts > 7) {
@@ -38,7 +38,7 @@ async function startServer() {
                 failedAttempts = 0;
                 scheduler.scheduleJob({
                     name: "dbUpdate",
-                    path: path.join(__dirname, "jobs", "dbUpdate.ts"),
+                    func: require("./jobs/dbUpdate").default,
                     jobVariable: res,
                     endBehavior: () => {
                         scheduler.runJobNow("dbFetch");
@@ -48,7 +48,7 @@ async function startServer() {
         },
         {
             name: "dbFetch",
-            path: path.join(__dirname, "jobs", "dbFetch.ts"),
+            func: require("./jobs/dbFetch").default,
             initialDelay: 1,
             repeatEvery: 43200000,
             jobVariable: { 
