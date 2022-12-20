@@ -26,7 +26,7 @@ export default class ICSServer {
         if (this.started) return;
         this.started = true;
         this.expressApp.use(`/${process.env.SECRET}`, (req) => createFeedRoute(generateIcs("Costco Shift Scheduler", this.eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host))))
-	    this.expressApp.listen(80, () => {
+	    this.expressApp.listen(process.env.PORT, () => {
 		    console.log('ICS Server is running on secret env variable');
 	    });
     }
