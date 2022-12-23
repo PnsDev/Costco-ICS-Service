@@ -1,22 +1,23 @@
 import express from 'express';
 import EventHolder from './EventHolder';
 
-const { createFeedRoute, generateIcs } = require('ics-service'); // no types for this package
+const { generateIcs } = require('ics-service'); // no types for this package
+
+let eventHolder: EventHolder;
 
 /**
  * An ICS server that will serve the events in the eventHolder
  */
 export default class ICSServer {
     expressApp: express.Application = express();
-    eventHolder: EventHolder;
     started: boolean = false;
 
     /**
      * An ICS server that will serve the events in the eventHolder
      * @param eventHolder The event holder to use
      */
-    constructor(eventHolder: EventHolder) {
-        this.eventHolder = eventHolder;
+    constructor(eventH: EventHolder) {
+        eventHolder = eventH;
     }
 
     /**
@@ -24,10 +25,15 @@ export default class ICSServer {
      */
     public startServer() {
         if (this.started) return;
+
         this.started = true;
-        this.expressApp.use(`/${process.env.SECRET}`, (req) => createFeedRoute(generateIcs("Costco Shift Scheduler", this.eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host))))
-	    this.expressApp.listen(process.env.PORT, () => {
-		    console.log('ICS Server is running on secret env variable');
-	    });
+        this.expressApp.use(`/${process.env.SECRET}`, (req, res) => {
+            res.writeHead(200, 'ok', {'content-type': 'text/calendar'})
+            res.end(generateIcs("Costco Shift Scheduler", eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host)));
+        });
+
+        this.expressApp.listen(process.env.PORT, () => {
+            console.log('ICS Server is running on secret env variable');
+        });
     }
 }
