@@ -15,7 +15,7 @@ export default async function job() {
     const finalDates: CalendarEvent[] = [];
 
     const browser: Puppeteer.Browser = await Puppeteer.launch({
-        headless: true,
+        executablePath: '/usr/bin/google-chrome',
         args: ['--no-sandbox']
     });
     const page: Puppeteer.Page = await browser.newPage();
