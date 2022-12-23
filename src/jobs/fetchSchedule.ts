@@ -28,8 +28,8 @@ export default async function job() {
 
     await page.waitForSelector('#username');
 
-    await page.type('#username', process.env.USER);
-    await page.type('#password', process.env.PASS);
+    await page.type('#username', process.env.COSTCO_USER);
+    await page.type('#password', process.env.COSTCO_PASS);
 
     // Wait to make sure the function is callable
     await delay(2000);
@@ -41,7 +41,7 @@ export default async function job() {
      */
 
     await page.waitForSelector('.passcode-input');
-    await page.type('.passcode-input', totp(process.env.OTC));
+    await page.type('.passcode-input', totp(process.env.COSTCO_OTC));
 
     // Send event to trigger button update
     await delay(100);
@@ -86,10 +86,10 @@ export default async function job() {
 
     // Select input with id username and type in username
     await targetFrame.click('#CAMUsername');
-    await targetFrame.type('#CAMUsername', process.env.USER);
+    await targetFrame.type('#CAMUsername', process.env.COSTCO_USER);
 
     await targetFrame.click('#CAMPassword');
-    await targetFrame.type('#CAMPassword', process.env.PASS);
+    await targetFrame.type('#CAMPassword', process.env.COSTCO_PASS);
 
     // Submit
     await targetFrame.click('#CAMPassword');

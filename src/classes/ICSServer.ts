@@ -27,12 +27,12 @@ export default class ICSServer {
         if (this.started) return;
 
         this.started = true;
-        this.expressApp.use(`/${process.env.SECRET}`, (req, res) => {
+        this.expressApp.use(`/${process.env.ICS_SECRET}`, (req, res) => {
             res.writeHead(200, 'ok', {'content-type': 'text/calendar'})
             res.end(generateIcs("Costco Shift Scheduler", eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host)));
         });
 
-        this.expressApp.listen(process.env.PORT, () => {
+        this.expressApp.listen(process.env.ICS_PORT, () => {
             console.log('ICS Server is running on secret env variable');
         });
     }
