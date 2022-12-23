@@ -5,6 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
+    "start": "node dist/index.js",
     "dev": "cross-env TS_NODE=true NODE_OPTIONS=\"--loader ts-node/esm\" node ."
   },
   "repository": {
