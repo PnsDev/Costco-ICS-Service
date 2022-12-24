@@ -24,7 +24,7 @@ async function startServer() {
         {
             name: "fetchSchedule",
             func: require("./jobs/fetchSchedule").default,
-            initialDelay: 1,
+            initialDelay: 80000,
             repeatEvery: 21600000,
             errorBehavior: (job) => {
                 if (++failedAttempts > 7) {

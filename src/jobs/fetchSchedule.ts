@@ -39,7 +39,7 @@ export default async function job() {
     await page.type('#password', process.env.COSTCO_PASS);
 
     // Wait to make sure the function is callable
-    await delay(2000);
+    await delay(5000);
     await page.evaluate('postOk();');
 
 
