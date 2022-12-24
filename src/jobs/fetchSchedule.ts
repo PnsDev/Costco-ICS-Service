@@ -27,7 +27,27 @@ export default async function job() {
         ]
     });
     const page: Puppeteer.Page = await browser.newPage();
-    await page.goto('https://ess.costco.com/', {waitUntil : 'networkidle2' });
+    //await page.goto('https://google.com/', {waitUntil : 'networkidle2' });
+
+    function checkInternet(cb) {
+        require('dns').lookup('google.com',function(err) {
+            if (err && err.code == "ENOTFOUND") {
+                cb(false);
+            } else {
+                cb(true);
+            }
+        })
+    }
+    
+    // example usage:
+    checkInternet(function(isConnected) {
+        if (isConnected) {
+            console.log('connected');
+        } else {
+            console.log('not connected');
+            // not connected to the internet
+        }
+    });
 
     return;
 
