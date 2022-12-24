@@ -1,7 +1,7 @@
-import scheduledDate from '../schemas/scheduledDate';
-import { removeItem } from '../utils/miscUtils';
 import CalendarEvent from '../classes/CalendarEvent';
+import scheduledDate from '../schemas/scheduledDate';
 import { equalDates } from '../utils/dateUtils';
+import { eventsFromDBArray, removeItem } from '../utils/miscUtils';
 
 export default async function job(previousJobData: CalendarEvent[]) {
     if (previousJobData.length === 0) throw new Error('No data from previous job');
@@ -9,13 +9,8 @@ export default async function job(previousJobData: CalendarEvent[]) {
     // These should be pre-sorted but let's just make sure so we can pull the first date
     previousJobData.sort((a, z) => a.date.getTime() - z.date.getTime());
 
-    let dbEvents: CalendarEvent[] = (await scheduledDate.find({startTime: {$gte: previousJobData[0].date}})).map(
-        dbEvent => {
-            const event = CalendarEvent.fromDates(dbEvent.startTime, dbEvent.endTime, dbEvent.canceled, dbEvent.lastUpdated);
-            event.uid = dbEvent.uid;
-            return event;
-        }
-    );
+    // Get all events from the db that are after the first event in the previous job
+    let dbEvents = eventsFromDBArray(await scheduledDate.find({startTime: {$gte: previousJobData[0].date}}));
 
     // Loop and check for dupes
     dbCompareLoop: for (let i = 0; i < previousJobData.length; i++) {

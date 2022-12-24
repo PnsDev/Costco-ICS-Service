@@ -1,24 +1,16 @@
 import CalendarEvent from "../classes/CalendarEvent";
 import EventHolder from "../classes/EventHolder"
 import scheduledDate from "../schemas/scheduledDate";
+import { eventsFromDBArray } from "../utils/miscUtils";
 
-export default async function job(input: input) {
-    let tempArray = await scheduledDate.find({startTime: {$gte: input.dataFrom}});
-    let dataInDB: CalendarEvent[] = [];
-
-    for (const key in tempArray) {
-        let event = CalendarEvent.fromDates(tempArray[key].startTime, tempArray[key].endTime, tempArray[key].canceled, tempArray[key].lastUpdated);
-        event.uid = tempArray[key].uid;
-        dataInDB.push(event);
-    }
-    
-    // Update event holder
-    input.eventHolder.events = dataInDB;
+export default async function job(jobData: dbFetchData) {
+    // This is a very simple job that just fetches data from the database
+    jobData.eventHolder.events = eventsFromDBArray(await scheduledDate.find({startTime: {$gte: jobData.dataFrom}}));
 }
 
 
 
-type input = {
+type dbFetchData = {
     eventHolder: EventHolder,
     dataFrom: Date
 }
