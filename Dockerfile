@@ -16,8 +16,5 @@ RUN npm install
 # Copy the rest of the project files
 COPY . .
 
-# Build the project
-RUN npm run build
-
 # Start the project
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "dev"]

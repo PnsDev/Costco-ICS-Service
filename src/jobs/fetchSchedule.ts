@@ -16,11 +16,18 @@ export default async function job() {
 
     const browser: Puppeteer.Browser = await Puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox']
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-infobars',
+            '--window-position=0,0',
+            '--ignore-certifcate-errors',
+            '--ignore-certifcate-errors-spki-list',
+            '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
+        ]
     });
     const page: Puppeteer.Page = await browser.newPage();
-    await page.goto('https://ess.costco.com/');
-
+    await page.goto('https://ess.costco.com/', {waitUntil : 'networkidle2' });
 
     /**
      * Sign in to ESS with username and password
@@ -139,6 +146,7 @@ export default async function job() {
         
         // Get data here 9-10
         for (let j = 2; j < rows.length; j++) {
+            if (rows[j] === undefined) continue;
             let rowContent = await rows[j].$$('td');
             let parsedRowContent = [];
             if (rowContent.length < 9) continue; // Skip - row holds useless data
