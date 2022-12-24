@@ -37,7 +37,7 @@ export default class CalendarEvent {
      * @returns A CalendarEvent stored in the database
      */
     public static async fromDB(dateOrID: Date | string): Promise<CalendarEvent | null> {
-        let res = await CalendarEvent.findOneByObject(dateOrID instanceof Date ? {startTime: dateOrID} : {uid: dateOrID})
+        let res = await CalendarEvent.findOneByObject(dateOrID instanceof Date ? { startTime: dateOrID } : { uid: dateOrID })
         if (res === null) return null;
         let cEvent = new CalendarEvent(res.startTime, res.endTime, res.canceled, res.lastUpdated);;
         cEvent.uid = res.uid; // for the UID in there
@@ -47,14 +47,14 @@ export default class CalendarEvent {
     public turnIntoICSEvent(): ICSEvent {
         const dif: dateDiff = dateDif(this.date, this.dateEnd);
         return {
-            uid: this.uid, 
+            uid: this.uid,
             title: `${numToWeekDate(this.date.getDay())} Shift`,
             description: `You work ${dif.hours} hours and ${dif.minutes} minutes.\n\nLast updated on ${this.lastUpdated.getMonth() + 1}/${this.lastUpdated.getDate()}/${this.lastUpdated.getFullYear()}`,
             start: [
-                this.date.getFullYear(), 
-                this.date.getMonth() + 1, 
-                this.date.getDate(), 
-                this.date.getHours() + 1, 
+                this.date.getFullYear(),
+                this.date.getMonth() + 1,
+                this.date.getDate(),
+                this.date.getHours() + 1,
                 this.date.getMinutes() + 1
             ],
             duration: dif,
@@ -73,8 +73,8 @@ export default class CalendarEvent {
      * Attempts to save the data to the database
      * @returns true if successful, false if not
      */
-    public async save() : Promise<boolean> {
-        let event = await CalendarEvent.findOneByObject({uid: this.uid});
+    public async save(): Promise<boolean> {
+        let event = await CalendarEvent.findOneByObject({ uid: this.uid });
         if (event === null) {
             event = new scheduledDate();
             event.uid = this.uid;
@@ -95,7 +95,7 @@ export default class CalendarEvent {
      * Finds the date based on the provided object
      * @returns the event that matches the object if it exists in the database, null if not
      */
-    private static findOneByObject(obj: Object) : Promise<any> {
+    private static findOneByObject(obj: Object): Promise<any> {
         return new Promise((resolve) => {
             scheduledDate.findOne(obj, (err: any, calendarDate: any) => {
                 if (err) return resolve(null);

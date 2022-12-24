@@ -50,11 +50,11 @@ export default class Scheduler {
 
         try {
             let res = await job.func(job.jobVariable);
-            await job.endBehavior({...job}, res);
-        } catch(err: any) {
+            await job.endBehavior({ ...job }, res);
+        } catch (err: any) {
             console.log(`Job ${job.name} encountered the following error:\n${err}`);
-            try { await job.errorBehavior({...job}, err); }
-            catch (errErr: any) {} // Lol
+            try { await job.errorBehavior({ ...job }, err); }
+            catch (errErr: any) { } // Lol
         }
     }
 }
@@ -73,6 +73,6 @@ const defaultValues = {
     jobVariables: {},
     repeatEvery: null,
     initialDelay: 0,
-    endBehavior: () => {},
-    errorBehavior: () => {}
+    endBehavior: () => { },
+    errorBehavior: () => { }
 }

@@ -29,10 +29,10 @@ export function dateDif(date1: Date, date2: Date): dateDiff {
  */
 export function convertTime12to24(time12h: string): string {
     const [time, modifier] = time12h.split(' ');
-  
+
     let [hours, minutes] = time.split(':');
     if (hours === '12') hours = '00';
-    
+
     return `${modifier === 'PM' ? parseInt(hours, 10) + 12 : hours}:${minutes}`;
 }
 

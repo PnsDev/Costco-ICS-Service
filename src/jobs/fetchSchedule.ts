@@ -22,7 +22,7 @@ export default async function job() {
         ]
     });
     const page: Puppeteer.Page = await browser.newPage();
-    await page.goto('https://ess.costco.com/', {waitUntil : 'networkidle2' });
+    await page.goto('https://ess.costco.com/', { waitUntil: 'networkidle2' });
 
     /**
      * Sign in to ESS with username and password
@@ -141,9 +141,9 @@ export default async function job() {
         let table = await targetFrame.waitForSelector('table[lid="List3_NS_"');
 
         await delay(15000);
-        
+
         let rows = await table.$$('tr');
-        
+
         // Get data here 9-10
         for (let j = 2; j < rows.length; j++) {
             if (rows[j] === undefined) continue;

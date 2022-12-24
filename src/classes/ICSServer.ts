@@ -28,7 +28,7 @@ export default class ICSServer {
 
         this.started = true;
         this.expressApp.use(`/${process.env.ICS_SECRET}`, (req, res) => {
-            res.writeHead(200, 'ok', {'content-type': 'text/calendar'})
+            res.writeHead(200, 'ok', { 'content-type': 'text/calendar' })
             res.end(generateIcs("Costco Shift Scheduler", eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host)));
         });
 

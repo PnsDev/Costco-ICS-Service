@@ -10,7 +10,7 @@ export default async function job(previousJobData: CalendarEvent[]) {
     previousJobData.sort((a, z) => a.date.getTime() - z.date.getTime());
 
     // Get all events from the db that are after the first event in the previous job
-    let dbEvents = eventsFromDBArray(await scheduledDate.find({startTime: {$gte: previousJobData[0].date}}));
+    let dbEvents = eventsFromDBArray(await scheduledDate.find({ startTime: { $gte: previousJobData[0].date } }));
 
     // Loop and check for dupes
     dbCompareLoop: for (let i = 0; i < previousJobData.length; i++) {

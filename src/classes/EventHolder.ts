@@ -21,7 +21,7 @@ export default class EventHolder {
     public setEvents(events: Array<CalendarEvent>) {
         this.#events = events;
     }
-    
+
     /**
      * Clears all the events from the list
      */

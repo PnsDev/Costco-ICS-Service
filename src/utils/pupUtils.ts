@@ -6,7 +6,7 @@ import { Frame, Page } from 'puppeteer';
  * @param innerText The inner text of the span we are looking to click
  * @returns Returns a promise that is completed when 
  */
-export async function findAndClickSpan(target: Frame | Page, innerText: string) : Promise<void> {
+export async function findAndClickSpan(target: Frame | Page, innerText: string): Promise<void> {
     for (let clickable of await target.$$('span')) {
         if (await (await clickable.getProperty('innerText')).jsonValue() !== innerText) continue;
         return clickable.click();

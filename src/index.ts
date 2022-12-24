@@ -32,7 +32,7 @@ async function startServer() {
                     process.exit(1);
                 }
                 // If the job fails, we want to try again in 2 hours
-                scheduler.scheduleJob({...job, repeatEvery: null, initialDelay: 7200000});
+                scheduler.scheduleJob({ ...job, repeatEvery: null, initialDelay: 7200000 });
             },
             endBehavior: (job, res) => {
                 failedAttempts = 0;
@@ -51,11 +51,11 @@ async function startServer() {
             func: require("./jobs/dbFetch").default,
             initialDelay: 1,
             repeatEvery: 43200000,
-            jobVariable: { 
-                eventHolder: eventHolder, 
+            jobVariable: {
+                eventHolder: eventHolder,
                 dataFrom: new Date((new Date().getTime() - 2.628e+9)) // One month ago
             },
-            endBehavior: () => {icsServer.startServer()} // Start the server in case it hasn't been started yet (since we don't want to return empty calendars)
+            endBehavior: () => { icsServer.startServer() } // Start the server in case it hasn't been started yet (since we don't want to return empty calendars)
         }
     ]);
 }
