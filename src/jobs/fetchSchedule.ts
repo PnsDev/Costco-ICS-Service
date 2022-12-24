@@ -104,10 +104,12 @@ export default async function job() {
 
     // Switch iframe to login frame
     targetFrame = await (await preFrame.waitForSelector('iframe[title="Launchpad Start URL"]')).contentFrame();
-    await delay(5000);
+    await delay(20000);
 
     // Select the dropdown (first one is a hidden admin menu)
     let selectDrop = (await targetFrame.$$("select"))[1];
+
+    await delay(10000);
 
     // We don't actually care about the options, we just want the amount
     let preOptions = await selectDrop.$$('option');
@@ -137,6 +139,9 @@ export default async function job() {
         await delay(15000);
 
         let table = await targetFrame.waitForSelector('table[lid="List3_NS_"');
+
+        await delay(15000);
+        
         let rows = await table.$$('tr');
         
         // Get data here 9-10
