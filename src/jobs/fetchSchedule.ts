@@ -146,6 +146,7 @@ export default async function job() {
         
         // Get data here 9-10
         for (let j = 2; j < rows.length; j++) {
+            if (rows[j] === undefined) continue;
             let rowContent = await rows[j].$$('td');
             let parsedRowContent = [];
             if (rowContent.length < 9) continue; // Skip - row holds useless data
