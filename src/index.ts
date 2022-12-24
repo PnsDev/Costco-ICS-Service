@@ -1,10 +1,9 @@
-import 'dotenv/config'
+import 'dotenv/config';
 
 import mongoose from "mongoose";
 import EventHolder from "./classes/EventHolder";
 import ICSServer from "./classes/ICSServer";
 import Scheduler from "./scheduler/Scheduler";
-import path from "path";
 
 const eventHolder: EventHolder = new EventHolder();
 let icsServer: ICSServer;
