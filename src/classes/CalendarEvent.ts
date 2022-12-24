@@ -54,8 +54,8 @@ export default class CalendarEvent {
                 this.date.getFullYear(), 
                 this.date.getMonth() + 1, 
                 this.date.getDate(), 
-                this.date.getHours(), 
-                this.date.getMinutes()
+                this.date.getHours() + 1, 
+                this.date.getMinutes() + 1
             ],
             duration: dif,
             status: this.canceled === false ? 'CONFIRMED' : 'CANCELLED',
