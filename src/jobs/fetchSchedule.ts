@@ -15,7 +15,7 @@ export default async function job() {
     const finalDates: CalendarEvent[] = [];
 
     const browser: Puppeteer.Browser = await Puppeteer.launch({
-        headless: true,
+        headless: false,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
@@ -70,10 +70,10 @@ export default async function job() {
     let targetFrame = await (await preFrame.waitForSelector('iframe[name="Overview"]')).contentFrame();
 
     // Get payroll
-    await delay(10000);
+    await delay(30000);
 
     await findAndClickSpan(targetFrame, 'Payroll');
-    await delay(10000);
+    await delay(30000);
 
     await findAndClickSpan(targetFrame, 'Online Schedule');
     await delay(10000);
