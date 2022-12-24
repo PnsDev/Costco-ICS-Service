@@ -16,11 +16,18 @@ export default async function job() {
 
     const browser: Puppeteer.Browser = await Puppeteer.launch({
         headless: true,
-        args: ['--no-sandbox']
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-infobars',
+            '--window-position=0,0',
+            '--ignore-certifcate-errors',
+            '--ignore-certifcate-errors-spki-list',
+            '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
+        ]
     });
     const page: Puppeteer.Page = await browser.newPage();
-    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
-    await page.goto('http://google.com/', {waitUntil : 'networkidle2' });
+    await page.goto('https://ess.costco.com/', {waitUntil : 'networkidle2' });
 
     return;
 
