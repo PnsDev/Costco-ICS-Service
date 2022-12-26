@@ -178,8 +178,8 @@ export default async function job() {
             } else lastDate = strDate.map(n => parseInt(n));
 
             finalDates.push(CalendarEvent.fromDates(
-                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], intTime1[0] - 1, --intTime1[1] - 1),
-                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], intTime2[0] - 1, --intTime2[1] - 1),
+                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], intTime1[0] - 1, intTime1[1] - 1),
+                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], intTime2[0] - 1, intTime2[1] - 1),
             ));
         }
     }
