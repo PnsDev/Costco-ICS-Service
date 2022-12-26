@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import EventHolder from "./classes/EventHolder";
 import ICSServer from "./classes/ICSServer";
 import Scheduler from "./scheduler/Scheduler";
+import Logger from './utils/logger';
 
 const eventHolder: EventHolder = new EventHolder();
 let icsServer: ICSServer;
@@ -12,10 +13,14 @@ let scheduler: Scheduler;
 
 let failedAttempts = 0;
 
+// Define global logger
+global.log = new Logger();
+
 
 async function startServer() {
     mongoose.set('strictQuery', true);
     mongooseDb = await mongoose.connect(`${process.env.MONGO_URL}/costco?authSource=admin`);
+    global.log.info('')
 
     icsServer = new ICSServer(eventHolder);
 
@@ -27,7 +32,7 @@ async function startServer() {
             repeatEvery: 21600000,
             errorBehavior: (job) => {
                 if (++failedAttempts > 7) {
-                    console.log("Too many failed attempts. Shutting down.");
+                    global.log.warn("Too many failed attempts. Shutting down.");
                     process.exit(1);
                 }
                 // If the job fails, we want to try again in 2 hours

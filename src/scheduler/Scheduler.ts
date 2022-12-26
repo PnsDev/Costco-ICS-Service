@@ -1,3 +1,4 @@
+import { greenBright } from "chalk";
 import { delay } from "../utils/miscUtils";
 import { msToCron } from "./utils";
 
@@ -17,6 +18,7 @@ export default class Scheduler {
      */
     public async scheduleJob(job: job): Promise<void> {
         job = { ...defaultValues, ...job };
+        global.log.info(`Job ${job.name} has started the scheduling process.`);
 
         // If the job is repeating, we need to run it without waiting for it to finish
         if (job.repeatEvery === null || job.initialDelay !== 0) {
@@ -25,6 +27,7 @@ export default class Scheduler {
             Scheduler.runJob(job);
         }
 
+        global.log.log(greenBright(`Job ${job.name} has been successfully scheduled.`));
         this.jobs.push(job);
         cron.schedule(msToCron(job.repeatEvery), async () => {
             Scheduler.runJob(job);
@@ -47,12 +50,14 @@ export default class Scheduler {
      * @param job The job to run
      */
     private static async runJob(job: job): Promise<void> {
-
+        global.log.log(`Job ${job.name} has started.`);
         try {
             let res = await job.func(job.jobVariable);
+            global.log.info(`Job ${job.name} has successfully completed. Running end behavior...`);
             await job.endBehavior({ ...job }, res);
+            global.log.info(`Job ${job.name} end behavior has completed.`);
         } catch (err: any) {
-            console.log(`Job ${job.name} encountered the following error:\n${err}`);
+            global.log.warn(`Job ${job.name} encountered the following error:\n${err}`);
             try { await job.errorBehavior({ ...job }, err); }
             catch (errErr: any) { } // Lol
         }

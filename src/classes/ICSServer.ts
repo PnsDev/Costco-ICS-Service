@@ -33,7 +33,7 @@ export default class ICSServer {
         });
 
         this.expressApp.listen(process.env.ICS_PORT, () => {
-            console.log('ICS Server is running on secret env variable');
+            global.log.log(`ICS server listening on port ${process.env.ICS_PORT}`);
         });
     }
 }
