@@ -3,7 +3,7 @@ import Puppeteer from 'puppeteer';
 
 import totp from 'totp-generator';
 import CalendarEvent from '../classes/CalendarEvent';
-import { convertTime12to24 } from '../utils/dateUtils';
+import { convertTime12to24, equalDates } from '../utils/dateUtils';
 import { delay } from '../utils/miscUtils';
 import { findAndClickSpan } from '../utils/pupUtils';
 
@@ -165,15 +165,21 @@ export default async function job() {
             let intTime2 = convertTime12to24(parsedRowContent[strDate.length === 1 ? 1 : 2]).split(':').map(n => parseInt(n));
 
             // Get last date if schedule is double/triple
-            if (strDate.length === 1) strDate = lastDate;
-            else {
-                strDate = strDate.map(n => parseInt(n));
-                lastDate = strDate;
-            }
+            if (strDate.length === 1) {
+                strDate = lastDate;
+                let tempNewStartTime = new Date(strDate[2], strDate[0] - 1, strDate[1], intTime1[0] - 1, intTime1[1] - 1);
+
+                // Check if the new start time is equal to the last end time
+                // if so just merge the shifts together
+                if (equalDates(tempNewStartTime, finalDates[finalDates.length - 1].dateEnd)) {
+                    finalDates[finalDates.length - 1].dateEnd = new Date(strDate[2], strDate[0] - 1, strDate[1], intTime2[0] - 1, intTime2[1] - 1);
+                    continue;
+                }
+            } else lastDate = strDate.map(n => parseInt(n));
 
             finalDates.push(CalendarEvent.fromDates(
-                new Date(strDate[2], strDate[0] - 1, strDate[1], intTime1[0] - 1, intTime1[1] - 1),
-                new Date(strDate[2], strDate[0] - 1, strDate[1], intTime2[0] - 1, intTime2[1] - 1),
+                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], lastDate[0] - 1, lastDate[1] - 1),
+                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], lastDate[0] - 1, lastDate[1] - 1),
             ));
         }
     }
