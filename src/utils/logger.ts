@@ -27,7 +27,7 @@ export default class Logger {
      * @param message The message to log
      */
     public info(message: string): void {
-        if (process.env.NODE_ENV === "production") return;
+        if (process.env.NODE_ENV === "prod") return;
         console.info(this.formatMessage(message));
     }
 
