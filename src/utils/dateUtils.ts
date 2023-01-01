@@ -1,4 +1,4 @@
-const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export type dateDiff = {
     hours: number;
@@ -42,7 +42,7 @@ export function convertTime12to24(time12h: string): string {
  * @returns The day of the week as a string
  */
 export function numToWeekDate(num: number): string {
-    return weekDays[num - 1];
+    return weekDays[num]; // This is flawed thinking because the week starts on Monday, not Sunday
 }
 
 /**
