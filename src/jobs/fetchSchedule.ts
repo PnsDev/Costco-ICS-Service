@@ -171,7 +171,7 @@ export default async function job() {
 
                 // Check if the new start time is equal to the last end time
                 // if so just merge the shifts together
-                if (equalDatesByDiff(tempNewStartTime, finalDates[finalDates.length - 1].dateEnd), 59999) {
+                if (equalDatesByDiff(tempNewStartTime, finalDates[finalDates.length - 1].dateEnd)) {
                     finalDates[finalDates.length - 1].dateEnd = new Date(strDate[2], strDate[0] - 1, strDate[1], intTime2[0] - 1, intTime2[1] - 1);
                     continue;
                 }
