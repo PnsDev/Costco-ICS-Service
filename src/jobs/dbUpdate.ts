@@ -1,43 +1,48 @@
-import scheduledDate from '../schemas/scheduledDate';
-import { removeItem } from '../utils/miscUtils';
 import CalendarEvent from '../classes/CalendarEvent';
-import { equalDates } from '../utils/dateUtils';
+import scheduledDate from '../schemas/scheduledDate';
+import { equalDatesByDiff } from '../utils/dateUtils';
+import { eventsFromDBArray, removeItem } from '../utils/miscUtils';
 
 export default async function job(previousJobData: CalendarEvent[]) {
     if (previousJobData.length === 0) throw new Error('No data from previous job');
 
-    // These should be pre-sorted but let's just make sure
+    // These should be pre-sorted but let's just make sure so we can pull the first date
     previousJobData.sort((a, z) => a.date.getTime() - z.date.getTime());
 
-    // TODO: Clean this up
-    let tempArray = await scheduledDate.find({startTime: {$gte: previousJobData[0].date}});
-    let dataInDB: CalendarEvent[] = [];
-
-    for (const key in tempArray) {
-        let event = CalendarEvent.fromDates(tempArray[key].startTime, tempArray[key].endTime, tempArray[key].canceled, tempArray[key].lastUpdated);
-        event.uid = tempArray[key].uid;
-        dataInDB.push(event);
-    }
+    // Get all events from the db that are after the first event in the previous job
+    let dbEvents = eventsFromDBArray(await scheduledDate.find({ startTime: { $gte: previousJobData[0].date } }));
 
     // Loop and check for dupes
-    for (let i = 0; i < previousJobData.length; i++) {
-        let updatedDB = false; // Used to check if the db was updated
+    dbCompareLoop: for (let i = 0; i < previousJobData.length; i++) {
         const newEvent = previousJobData[i];
-        for (let j = 0; j < dataInDB.length; j++) {
-            const oldEvent = dataInDB[j];
+        for (let j = 0; j < dbEvents.length; j++) {
+            const oldEvent = dbEvents[j];
 
-            if (!(equalDates(newEvent.date, oldEvent.date)) || !(equalDates(newEvent.dateEnd, oldEvent.dateEnd))) continue;
-            newEvent.uid = removeItem(dataInDB, oldEvent).uid;
+            // If the event is the same, update the db event and continue
+            if (!equalDatesByDiff(newEvent.date, oldEvent.date) ||
+                !equalDatesByDiff(newEvent.dateEnd, oldEvent.dateEnd)) continue;
+
+            newEvent.uid = removeItem(dbEvents, oldEvent).uid;
             await newEvent.save(); // Updated old event to use new event
-            updatedDB = true;
-            break;
+
+            // Check for other events at the same time to delete them
+            for (const key in dbEvents) {
+                const otherEvent = dbEvents[key];
+                if (!equalDatesByDiff(newEvent.date, otherEvent.date) ||
+                    !equalDatesByDiff(newEvent.dateEnd, otherEvent.dateEnd)) continue;
+                await removeItem(dbEvents, otherEvent).delete(); // Delete the event and remove it from the array to prevent re-saving
+            }
+
+            continue dbCompareLoop;
         }
-        if (!updatedDB) {await newEvent.save();} // If the event was not found in the db... save it
+
+        // If the event was not found in the db... save it
+        await newEvent.save();
     }
 
     // Loop through leftover data and mark it is canceled
-    for (let i = 0; i < dataInDB.length; i++) {
-        dataInDB[i].canceled = true;
-        await dataInDB[i].save();
+    for (let i = 0; i < dbEvents.length; i++) {
+        dbEvents[i].canceled = true;
+        await dbEvents[i].save();
     }
 }

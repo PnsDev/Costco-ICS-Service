@@ -3,7 +3,7 @@ import Puppeteer from 'puppeteer';
 
 import totp from 'totp-generator';
 import CalendarEvent from '../classes/CalendarEvent';
-import { convertTime12to24 } from '../utils/dateUtils';
+import { convertTime12to24, equalDatesByDiff } from '../utils/dateUtils';
 import { delay } from '../utils/miscUtils';
 import { findAndClickSpan } from '../utils/pupUtils';
 
@@ -18,16 +18,11 @@ export default async function job() {
         headless: true,
         args: [
             '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-infobars',
-            '--window-position=0,0',
-            '--ignore-certifcate-errors',
-            '--ignore-certifcate-errors-spki-list',
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
         ]
     });
     const page: Puppeteer.Page = await browser.newPage();
-    await page.goto('https://ess.costco.com/', {waitUntil : 'networkidle2' });
+    await page.goto('https://ess.costco.com/', { waitUntil: 'networkidle2' });
 
     /**
      * Sign in to ESS with username and password
@@ -70,10 +65,10 @@ export default async function job() {
     let targetFrame = await (await preFrame.waitForSelector('iframe[name="Overview"]')).contentFrame();
 
     // Get payroll
-    await delay(10000);
+    await delay(30000);
 
     await findAndClickSpan(targetFrame, 'Payroll');
-    await delay(10000);
+    await delay(30000);
 
     await findAndClickSpan(targetFrame, 'Online Schedule');
     await delay(10000);
@@ -109,10 +104,12 @@ export default async function job() {
 
     // Switch iframe to login frame
     targetFrame = await (await preFrame.waitForSelector('iframe[title="Launchpad Start URL"]')).contentFrame();
-    await delay(5000);
+    await delay(20000);
 
     // Select the dropdown (first one is a hidden admin menu)
     let selectDrop = (await targetFrame.$$("select"))[1];
+
+    await delay(10000);
 
     // We don't actually care about the options, we just want the amount
     let preOptions = await selectDrop.$$('option');
@@ -142,8 +139,11 @@ export default async function job() {
         await delay(15000);
 
         let table = await targetFrame.waitForSelector('table[lid="List3_NS_"');
+
+        await delay(15000);
+
         let rows = await table.$$('tr');
-        
+
         // Get data here 9-10
         for (let j = 2; j < rows.length; j++) {
             if (rows[j] === undefined) continue;
@@ -165,15 +165,21 @@ export default async function job() {
             let intTime2 = convertTime12to24(parsedRowContent[strDate.length === 1 ? 1 : 2]).split(':').map(n => parseInt(n));
 
             // Get last date if schedule is double/triple
-            if (strDate.length === 1) strDate = lastDate;
-            else {
-                strDate = strDate.map(n => parseInt(n));
-                lastDate = strDate;
-            }
+            if (strDate.length === 1) {
+                strDate = lastDate;
+                let tempNewStartTime = new Date(strDate[2], strDate[0] - 1, strDate[1], intTime1[0] - 1, intTime1[1] - 1);
+
+                // Check if the new start time is equal to the last end time
+                // if so just merge the shifts together
+                if (equalDatesByDiff(tempNewStartTime, finalDates[finalDates.length - 1].dateEnd)) {
+                    finalDates[finalDates.length - 1].dateEnd = new Date(strDate[2], strDate[0] - 1, strDate[1], intTime2[0] - 1, intTime2[1] - 1);
+                    continue;
+                }
+            } else lastDate = strDate.map(n => parseInt(n));
 
             finalDates.push(CalendarEvent.fromDates(
-                new Date(strDate[2], strDate[0] - 1, strDate[1], intTime1[0] - 1, intTime1[1] - 1),
-                new Date(strDate[2], strDate[0] - 1, strDate[1], intTime2[0] - 1, intTime2[1] - 1),
+                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], intTime1[0] - 1, intTime1[1] - 1),
+                new Date(lastDate[2], lastDate[0] - 1, lastDate[1], intTime2[0] - 1, intTime2[1] - 1),
             ));
         }
     }

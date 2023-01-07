@@ -1,4 +1,4 @@
-const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export type dateDiff = {
     hours: number;
@@ -29,10 +29,10 @@ export function dateDif(date1: Date, date2: Date): dateDiff {
  */
 export function convertTime12to24(time12h: string): string {
     const [time, modifier] = time12h.split(' ');
-  
+
     let [hours, minutes] = time.split(':');
     if (hours === '12') hours = '00';
-    
+
     return `${modifier === 'PM' ? parseInt(hours, 10) + 12 : hours}:${minutes}`;
 }
 
@@ -42,15 +42,16 @@ export function convertTime12to24(time12h: string): string {
  * @returns The day of the week as a string
  */
 export function numToWeekDate(num: number): string {
-    return weekDays[num - 1];
+    return weekDays[num]; // This is flawed thinking because the week starts on Monday, not Sunday
 }
 
 /**
- * Checks if two dates are equal
+ * Checks if two dates are equal with a certain margin of error
  * @param date1 The first date
  * @param date2 The second date
+ * @param diff The margin of error
  * @returns True if the dates are equal, false otherwise
  */
-export function equalDates(date1: Date, date2: Date): boolean {
-    return date1.getTime() === date2.getTime();
+export function equalDatesByDiff(date1: Date, date2: Date, diff: Number = 0): boolean {
+    return Math.abs(date1.getTime() - date2.getTime()) <= diff;
 }
