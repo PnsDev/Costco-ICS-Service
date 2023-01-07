@@ -14,13 +14,16 @@ import { findAndClickSpan } from '../utils/pupUtils';
 export default async function job() {
     const finalDates: CalendarEvent[] = [];
 
-    const browser: Puppeteer.Browser = await Puppeteer.launch({
+    const browser: Puppeteer.Browser = await (process.env.PUP_USE_WS ? Puppeteer.connect({ browserWSEndpoint: process.env.PUP_WS_ENDPOINT }) : Puppeteer.launch({
         headless: true,
         args: [
             '--no-sandbox',
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
         ]
-    });
+    }));
+
+
+
     const page: Puppeteer.Page = await browser.newPage();
     await page.goto('https://ess.costco.com/', { waitUntil: 'networkidle2' });
 
