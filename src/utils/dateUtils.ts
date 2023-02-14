@@ -46,11 +46,12 @@ export function numToWeekDate(num: number): string {
 }
 
 /**
- * Checks if two dates are equal
+ * Checks if two dates are equal with a certain margin of error
  * @param date1 The first date
  * @param date2 The second date
+ * @param diff The margin of error
  * @returns True if the dates are equal, false otherwise
  */
-export function equalDates(date1: Date, date2: Date): boolean {
-    return date1.getTime() === date2.getTime();
+export function equalDatesByDiff(date1: Date, date2: Date, diff: Number = 0): boolean {
+    return Math.abs(date1.getTime() - date2.getTime()) <= diff;
 }

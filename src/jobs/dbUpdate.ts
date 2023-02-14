@@ -1,6 +1,6 @@
 import CalendarEvent from '../classes/CalendarEvent';
 import scheduledDate from '../schemas/scheduledDate';
-import { equalDates } from '../utils/dateUtils';
+import { equalDatesByDiff } from '../utils/dateUtils';
 import { eventsFromDBArray, removeItem } from '../utils/miscUtils';
 
 export default async function job(previousJobData: CalendarEvent[]) {
@@ -19,11 +19,20 @@ export default async function job(previousJobData: CalendarEvent[]) {
             const oldEvent = dbEvents[j];
 
             // If the event is the same, update the db event and continue
-            if (!(equalDates(newEvent.date, oldEvent.date)) ||
-                !(equalDates(newEvent.dateEnd, oldEvent.dateEnd))) continue;
+            if (!equalDatesByDiff(newEvent.date, oldEvent.date) ||
+                !equalDatesByDiff(newEvent.dateEnd, oldEvent.dateEnd)) continue;
 
             newEvent.uid = removeItem(dbEvents, oldEvent).uid;
             await newEvent.save(); // Updated old event to use new event
+
+            // Check for other events at the same time to delete them
+            for (const key in dbEvents) {
+                const otherEvent = dbEvents[key];
+                if (!equalDatesByDiff(newEvent.date, otherEvent.date) ||
+                    !equalDatesByDiff(newEvent.dateEnd, otherEvent.dateEnd)) continue;
+                await removeItem(dbEvents, otherEvent).delete(); // Delete the event and remove it from the array to prevent re-saving
+            }
+
             continue dbCompareLoop;
         }
 
