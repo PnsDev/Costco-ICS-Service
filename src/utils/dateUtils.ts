@@ -52,6 +52,6 @@ export function numToWeekDate(num: number): string {
  * @param diff The margin of error
  * @returns True if the dates are equal, false otherwise
  */
-export function equalDatesByDiff(date1: Date, date2: Date, diff: Number = 0): boolean {
+export function equalDatesByDiff(date1: Date, date2: Date, diff: number = 0): boolean {
     return Math.abs(date1.getTime() - date2.getTime()) <= diff;
 }
