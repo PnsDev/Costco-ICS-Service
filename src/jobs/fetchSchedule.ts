@@ -123,17 +123,12 @@ export default async function job() {
         // Reselect the dropdown because it like to change after usage
         if (i > 0) selectDrop = await targetFrame.$("select")
 
-        await selectDrop.click();
-        await delay(1000);
+        await selectDrop.select(await (await preOptions[i].getProperty('value')).jsonValue());
 
-        await page.keyboard.press('ArrowDown');
-        await delay(500);
-
-        await page.keyboard.press('Enter');
-        await delay(1000);
+        await delay(8000);
 
         // Submit the current payroll form
-        await targetFrame.evaluate("oCV_NS_.promptAction('next');");
+        await targetFrame.evaluate("oCV_NS_.promptAction('finish');");
 
         // Wait since we want to make sure we have the latest data for the new week
         await delay(15000);
