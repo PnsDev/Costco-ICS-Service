@@ -5,10 +5,10 @@ import EventHolder from "./classes/EventHolder";
 import ICSServer from "./classes/ICSServer";
 import Scheduler from "./scheduler/Scheduler";
 import Logger from './utils/logger';
+import {delay} from "./utils/miscUtils";
 
 const eventHolder: EventHolder = new EventHolder();
 let icsServer: ICSServer;
-let mongooseDb: mongoose.Mongoose;
 let scheduler: Scheduler;
 
 let failedAttempts = 0;
@@ -19,7 +19,19 @@ global.log = new Logger();
 
 async function startServer() {
     mongoose.set('strictQuery', true);
-    mongooseDb = await mongoose.connect(`${process.env.MONGO_URL}/costco?authSource=admin`);
+
+    let runningDBConnect = false;
+    while (!runningDBConnect) { // Attempt to keep connecting to db every minute
+        try {
+            await mongoose.connect(`${process.env.MONGO_URL}/costco?authSource=admin`);
+            runningDBConnect = true;
+        } catch (e) {
+            global.log.warn(e);
+            global.log.warn("Trying again in 1 minute...")
+            await delay(60000);
+        }
+    }
+
     global.log.info('')
 
     icsServer = new ICSServer(eventHolder);
@@ -62,6 +74,9 @@ async function startServer() {
             endBehavior: () => { icsServer.startServer() } // Start the server in case it hasn't been started yet (since we don't want to return empty calendars)
         }
     ]);
+
+    // On disconnect from mongodb kill self and wait for restart
+    mongoose.connection.on('disconnected', () => process.exit(1));
 }
 
 startServer();
