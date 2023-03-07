@@ -31,7 +31,10 @@ npm i
 ```
 
 3. Fill in the enviroment variables in `example.env`
-
+<BlockComponent
+block={{"owner":"githubnext","repo":"blocks-examples","id":"code-block","type":"file"}}
+context={{"repo":"Costco-ICS-Service","owner":"PnsDev","path":"example.env","sha":"HEAD","file":"README.md"}}
+/>
 4. Rename `example.env` to `.env`
 
 5. Build the project and start it
