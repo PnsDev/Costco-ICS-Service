@@ -15,7 +15,7 @@ export default async function job() {
     const finalDates: CalendarEvent[] = [];
 
     const browser: Puppeteer.Browser = await Puppeteer.launch({
-        headless: false,
+        headless: process.env.NODE_ENV !== "dev" ? true : false,
         args: [
             '--no-sandbox',
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
