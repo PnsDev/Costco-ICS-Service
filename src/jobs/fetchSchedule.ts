@@ -21,11 +21,11 @@ export default async function job() {
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
         ]
     });
-    
+
     // Use try catch to make sure browser is closed
     try {
         const page: Puppeteer.Page = await browser.newPage();
-        await page.goto('https://ess.costco.com/', { waitUntil: 'networkidle2' });
+        await page.goto('https://ecc.costco.com/sap/bc/webdynpro/sap/hress_a_menu?sap-language=EN&sap-wd-configId=HRESS_AC_MENU', { waitUntil: 'networkidle2' });
 
         /**
          * Sign in to ESS with username and password
@@ -45,6 +45,8 @@ export default async function job() {
          * One time code is generated using the secret key provided by Costco
          */
 
+        /** Currently not used by costco for some reason?
+
         await page.waitForSelector('.passcode-input');
         await page.type('.passcode-input', totp(process.env.COSTCO_OTC));
 
@@ -57,14 +59,17 @@ export default async function job() {
         // Click the submit button
         await page.waitForSelector('input.primary:not([disabled])');
         await page.click('input.primary');
+        */
+
+        await page.waitForNetworkIdle();
 
 
         /**
          * Navigate through internal costco website to online schedule
          */
 
+        /** Currently not used by costco for some reason? x2
         // Gets first the content frame and then gets the overview frame (used to preform this with promises)
-        const preFrame = await (await page.waitForSelector('iframe[name="contentAreaFrame"]')).contentFrame();
         let targetFrame = await (await preFrame.waitForSelector('iframe[name="isolatedWorkArea"]')).contentFrame();
 
         // Get payroll
@@ -76,39 +81,50 @@ export default async function job() {
         targetFrame = await (await targetFrame.waitForSelector('iframe[id="application-WDESSMenu-display"]')).contentFrame();
         targetFrame = await (await targetFrame.waitForSelector('iframe[role="presentation"]')).contentFrame();
         await delay(15000);
+        */
+        await delay(15000);
+        console.log('boop')
 
-        await findAndClickSpan(targetFrame, 'Payroll');
-        await delay(30000);
+        await findAndClickSpan(page, 'Payroll');
 
-        await findAndClickSpan(targetFrame, 'Online Schedule');
-        await delay(10000);
+        await page.waitForNetworkIdle();
 
+        await findAndClickSpan(page, 'Online Schedule');
+
+        await page.waitForNetworkIdle();
 
         /**
          * Login to Payroll
          */
 
-        await targetFrame.waitForSelector('#CAMUsername');
+        await page.waitForSelector('#CAMUsername');
         await delay(5000);
 
         // Select input with id username and type in username
-        await targetFrame.click('#CAMUsername');
-        await targetFrame.type('#CAMUsername', process.env.COSTCO_USER);
+        await page.click('#CAMUsername');
+        await page.type('#CAMUsername', process.env.COSTCO_USER);
 
-        await targetFrame.click('#CAMPassword');
-        await targetFrame.type('#CAMPassword', process.env.COSTCO_PASS);
+        await page.click('#CAMPassword');
+        await page.type('#CAMPassword', process.env.COSTCO_PASS);
 
         // Submit
-        await targetFrame.click('#CAMPassword');
-        await page.keyboard.press('Enter');
-        await delay(20000);
+        await page.click('#signInBtn');
 
+        await delay(10000);
+        await page.waitForNetworkIdle();
+
+        console.log('boop2')
+
+        const targetFrame = await (await page.waitForSelector('iframe')).contentFrame();
         /**
          * Select payroll dates from dropdown and scrape
          */
 
         // Select the dropdown (first one is a hidden admin menu)
+        console.log((await targetFrame.$$("select")).length)
         let selectDrop = (await targetFrame.$$("select"))[1];
+
+        console.log('boop3')
 
         await delay(10000);
 
@@ -181,9 +197,10 @@ export default async function job() {
         }
 
         await browser.close();
+        console.log(finalDates)
         return finalDates;
 
-    } catch(e) {
+    } catch (e) {
         //await browser.close();
         throw e;
     }
