@@ -1,7 +1,6 @@
 import process from 'node:process';
 import Puppeteer from 'puppeteer';
 
-import totp from 'totp-generator';
 import CalendarEvent from '../classes/CalendarEvent';
 import { convertTime12to24, equalDatesByDiff } from '../utils/dateUtils';
 import { delay } from '../utils/miscUtils';
@@ -40,65 +39,26 @@ export default async function job() {
         await delay(2000);
         await page.evaluate('postOk();');
 
-
-        /**
-         * One time code is generated using the secret key provided by Costco
-         */
-
-        /** Currently not used by costco for some reason?
-
-        await page.waitForSelector('.passcode-input');
-        await page.type('.passcode-input', totp(process.env.COSTCO_OTC));
-
-        // Send event to trigger button update
-        await delay(100);
-        await page.click('.passcode-input');
-        await delay(100);
-        await page.keyboard.press('Space');
-
-        // Click the submit button
-        await page.waitForSelector('input.primary:not([disabled])');
-        await page.click('input.primary');
-        */
-
-        await page.waitForNetworkIdle();
+        await page.waitForNetworkIdle({ idleTime: 6000 });
 
 
         /**
          * Navigate through internal costco website to online schedule
          */
 
-        /** Currently not used by costco for some reason? x2
-        // Gets first the content frame and then gets the overview frame (used to preform this with promises)
-        let targetFrame = await (await preFrame.waitForSelector('iframe[name="isolatedWorkArea"]')).contentFrame();
-
-        // Get payroll
-        await delay(30000);
-
-        await findAndClickSpan(targetFrame, 'ESS Main Menu');
-        await delay(30000);
-
-        targetFrame = await (await targetFrame.waitForSelector('iframe[id="application-WDESSMenu-display"]')).contentFrame();
-        targetFrame = await (await targetFrame.waitForSelector('iframe[role="presentation"]')).contentFrame();
-        await delay(15000);
-        */
-        await delay(15000);
-        console.log('boop')
-
         await findAndClickSpan(page, 'Payroll');
 
-        await page.waitForNetworkIdle();
+        await page.waitForNetworkIdle({ idleTime: 5000 });
 
         await findAndClickSpan(page, 'Online Schedule');
 
-        await page.waitForNetworkIdle();
+
 
         /**
          * Login to Payroll
          */
 
-        await page.waitForSelector('#CAMUsername');
-        await delay(5000);
+        await page.waitForSelector('#signInBtn', { timeout: 30000 });
 
         // Select input with id username and type in username
         await page.click('#CAMUsername');
@@ -110,23 +70,15 @@ export default async function job() {
         // Submit
         await page.click('#signInBtn');
 
-        await delay(10000);
-        await page.waitForNetworkIdle();
-
-        console.log('boop2')
-
-        const targetFrame = await (await page.waitForSelector('iframe')).contentFrame();
+        const targetFrame = await (await page.waitForSelector('iframe', { timeout: 30000 })).contentFrame();
         /**
          * Select payroll dates from dropdown and scrape
          */
 
+        await targetFrame.waitForSelector('select', { timeout: 30000 });
+
         // Select the dropdown (first one is a hidden admin menu)
-        console.log((await targetFrame.$$("select")).length)
         let selectDrop = (await targetFrame.$$("select"))[1];
-
-        console.log('boop3')
-
-        await delay(10000);
 
         // We don't actually care about the options, we just want the amount
         let preOptions = await selectDrop.$$('option');
@@ -142,17 +94,17 @@ export default async function job() {
 
             await selectDrop.select(await (await preOptions[i].getProperty('value')).jsonValue());
 
-            await delay(8000);
+            await delay(3000);
 
             // Submit the current payroll form
             await targetFrame.evaluate("oCV_NS_.promptAction('finish');");
 
             // Wait since we want to make sure we have the latest data for the new week
-            await delay(15000);
+            await page.waitForNetworkIdle({ idleTime: 6000 });
 
             let table = await targetFrame.waitForSelector('table[lid="List3_NS_"');
 
-            await delay(15000);
+            await delay(2000);
 
             let rows = await table.$$('tr');
 
@@ -197,11 +149,10 @@ export default async function job() {
         }
 
         await browser.close();
-        console.log(finalDates)
         return finalDates;
 
     } catch (e) {
-        //await browser.close();
+        await browser.close();
         throw e;
     }
 }
