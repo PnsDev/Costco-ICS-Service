@@ -19,11 +19,16 @@ export default async function job() {
             '--no-sandbox',
             '--user-agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3312.0 Safari/537.36"'
         ]
+
     });
 
     // Use try catch to make sure browser is closed
     try {
         const page: Puppeteer.Page = await browser.newPage();
+
+        page.setDefaultTimeout(120000);
+        page.setDefaultNavigationTimeout(120000);
+
         await page.goto('https://ecc.costco.com/sap/bc/webdynpro/sap/hress_a_menu?sap-language=EN&sap-wd-configId=HRESS_AC_MENU', { waitUntil: 'networkidle2' });
 
         /**
@@ -39,7 +44,7 @@ export default async function job() {
         await delay(2000);
         await page.evaluate('postOk();');
 
-        await page.waitForNetworkIdle({ idleTime: 6000, timeout: 120000 });
+        await page.waitForNetworkIdle({ idleTime: 6000 });
 
 
         /**
@@ -48,7 +53,7 @@ export default async function job() {
 
         await findAndClickSpan(page, 'Payroll');
 
-        await page.waitForNetworkIdle({ idleTime: 5000, timeout: 120000 });
+        await page.waitForNetworkIdle({ idleTime: 5000 });
 
         await findAndClickSpan(page, 'Online Schedule');
 
@@ -58,7 +63,7 @@ export default async function job() {
          * Login to Payroll
          */
 
-        await page.waitForSelector('#signInBtn', { timeout: 120000 });
+        await page.waitForSelector('#signInBtn');
 
         // Select input with id username and type in username
         await page.click('#CAMUsername');
@@ -70,12 +75,12 @@ export default async function job() {
         // Submit
         await page.click('#signInBtn');
 
-        const targetFrame = await (await page.waitForSelector('iframe', { timeout: 120000 })).contentFrame();
+        const targetFrame = await (await page.waitForSelector('iframe')).contentFrame();
         /**
          * Select payroll dates from dropdown and scrape
          */
 
-        await targetFrame.waitForSelector('select', { timeout: 120000 });
+        await targetFrame.waitForSelector('select');
 
         // Select the dropdown (first one is a hidden admin menu)
         let selectDrop = (await targetFrame.$$("select"))[1];
@@ -100,7 +105,7 @@ export default async function job() {
             await targetFrame.evaluate("oCV_NS_.promptAction('finish');");
 
             // Wait since we want to make sure we have the latest data for the new week
-            await page.waitForNetworkIdle({ idleTime: 6000, timeout: 120000 });
+            await page.waitForNetworkIdle({ idleTime: 6000 });
 
             let table = await targetFrame.waitForSelector('table[lid="List3_NS_"');
 
