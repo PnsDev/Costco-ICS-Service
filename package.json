@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "cross-env NODE_ENV=prod node dist/index.js",
-    "dev": "cross-env NODE_ENV=dev TS_NODE=true NODE_OPTIONS=\"--loader ts-node/esm\" node ."
+    "dev": "cross-env NODE_ENV=dev TS_NODE=true ts-node ."
   },
   "repository": {
     "type": "git",

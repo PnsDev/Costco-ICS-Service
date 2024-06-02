@@ -18,27 +18,27 @@ export default class ICSServer {
      */
     constructor(eventH: EventHolder) {
         eventHolder = eventH;
+
+        this.expressApp.use('/health', (req, res) => {
+            res.writeHead(200, 'ok')
+            res.end('OK')
+        });
+
+        this.expressApp.listen(process.env.ICS_PORT, () => {
+            global.log.log(`ICS server listening on port ${process.env.ICS_PORT}`);
+        });
     }
 
     /**
-     * Starts the express server
+     * Starts delivering the ICS calendar
      */
-    public startServer() {
+    public registerICS() {
         if (this.started) return;
 
         this.started = true;
         this.expressApp.use(`/${process.env.ICS_SECRET}`, (req, res) => {
             res.writeHead(200, 'ok', { 'content-type': 'text/calendar' })
             res.end(generateIcs("Costco Shift Scheduler", eventHolder.turnIntoICSEvents(), new URL(req.url, 'http://' + req.headers.host)));
-        });
-
-        this.expressApp.use('/health', (req, res) => {
-            res.writeHead(200, 'ok')
-            res.end('OK')
-        })
-
-        this.expressApp.listen(process.env.ICS_PORT, () => {
-            global.log.log(`ICS server listening on port ${process.env.ICS_PORT}`);
         });
     }
 }

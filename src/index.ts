@@ -71,7 +71,7 @@ async function startServer() {
                 eventHolder: eventHolder,
                 dataFrom: new Date((new Date().getTime() - 2.628e+9)) // One month ago
             },
-            endBehavior: () => { icsServer.startServer() } // Start the server in case it hasn't been started yet (since we don't want to return empty calendars)
+            endBehavior: () => { icsServer.registerICS() } // Start providing calendars (since we don't want to return empty calendars)
         }
     ]);
 
